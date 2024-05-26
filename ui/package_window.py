@@ -10,7 +10,6 @@ class PackageWindow(QtWidgets.QWidget):
         super().__init__(parent)
         self.package = package
         self.setWindowTitle(f'NixPkgs UI - {package.key}-{package.version}')
-        icon = package._configuration.resource_manager.get_favicon(package.homepage)
         # self.setGeometry(100, 100, 800, 600)
         self.layout = QtWidgets.QGridLayout()
         self.package_name = QtWidgets.QLabel(str(package))
