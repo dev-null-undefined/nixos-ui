@@ -16,6 +16,8 @@
           pylint
           whoosh
           ujson
+          pyqt5
+          pyqt5-stubs
         ];
       my-python = pkgs.python311.withPackages python-packages;
     in {

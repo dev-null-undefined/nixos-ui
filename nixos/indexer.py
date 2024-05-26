@@ -80,7 +80,7 @@ class Indexer:
             )
         writer.commit()
 
-    def search(self, query):
+    def search(self, query, limit=None):
         query_parser = MultifieldParser(["name", "description"], schema=self.index.schema)
         query_parser.add_plugin(FieldAliasPlugin({"description": ["desc", "text", "info", "props", "properties", "use"],
                                                   "name": ["title"]}))
@@ -89,6 +89,6 @@ class Indexer:
             if subquery[0] == "name" and subquery[1] == "free":
                 query.subqueries.append(query_parser.parse("free:true"))
 
-        results = self.searcher.search(query)
+        results = self.searcher.search(query, limit=limit)
 
         return results

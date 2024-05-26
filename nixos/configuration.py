@@ -17,6 +17,7 @@ class Configuration(ConfigurationSettings):
         self.path = path
         self.eval = CachedEvaluation(self)
         self._packages = []
+        self.indexer = None
 
     @property
     def packages(self):
@@ -27,3 +28,6 @@ class Configuration(ConfigurationSettings):
         if not self._packages:
             self._packages = [ Package(self, x) for x in self.eval.get_package_names()]
         return self._packages
+
+    def set_indexer(self, indexer):
+        self.indexer = indexer
