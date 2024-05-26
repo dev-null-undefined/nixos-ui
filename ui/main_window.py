@@ -1,15 +1,50 @@
 import os
+from threading import Thread
 
 from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5.QtCore import Qt
 
 from nixos.package import Package
 from ui.package_window import PackageWindow
+
+MAX_ICON_LOAD_AT_ONCE = 10
+
+
+class IconLoaderThread(QtCore.QThread):
+    data_downloaded = QtCore.pyqtSignal(object)
+
+    def __init__(self, main_window):
+        QtCore.QThread.__init__(self)
+        self.main_window = main_window
+
+    def run(self):
+        self._load_icon()
+
+    def _load_icon(self):
+        while len(self.main_window._icon_queue) != 0:
+            homepage = self.main_window._icon_queue[0]
+            self.main_window._icon_queue = self.main_window._icon_queue[1:]
+            if not homepage or homepage == "null" or homepage == "None" or homepage == "":
+                continue
+            print("Loading icon for: ", homepage)
+            icon = self.main_window.configuration.resource_manager.get_favicon(homepage)
+            if icon is not None:
+                print("Icon loaded for: ", homepage, ", ", icon.path)
+            self.data_downloaded.emit(homepage)
+            if len(self.main_window._icon_queue) == 0:
+                self.main_window._icon_loading_queue -= 1
+                return
 
 
 class NixGuiMainWindow(QtWidgets.QMainWindow):
     def __init__(self, configuration, parent=None):
         super().__init__(parent)
         self._packages = []
+        self._pixmaps = []
+        self._icon_queue = []
+        self._icon_labels = {}
+        self._threads = []
+        self._icon_loading_queue = 0
         self._package_windows = []
         self.configuration = configuration
         self.setWindowTitle('NixPkgs UI')
@@ -77,7 +112,11 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         layout.addWidget(desc_label, 1, 1)
         layout.addWidget(status_icons, 0, 2, 2, 1)
         widget.setLayout(layout)
-
+        if res['homepage'] not in self._icon_labels:
+            self._icon_labels[res['homepage']] = [icon_label]
+            self._icon_queue.append(res['homepage'])
+        else:
+            self._icon_labels[res['homepage']].append(icon_label)
         return widget
 
     def get_status_boxes(self, res):
@@ -86,15 +125,15 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         widget.setFixedHeight(75)
         layout = QtWidgets.QGridLayout()
         toggle_options = ["available", "working", "secure", "free", "good", "supported"]
-        icons = {}
+        toggle_checkboxes = {}
         for option in toggle_options:
-            icons[option] = QtWidgets.QCheckBox(option[0])
-            icons[option].setCheckState(QtCore.Qt.Checked if res[option] else QtCore.Qt.Unchecked)
-            icons[option].setDisabled(True)
-            icons[option].setStyleSheet("QCheckBox::indicator { width: 20px; height: 20px; }")
-            icons[option].setToolTip(option)
+            toggle_checkboxes[option] = QtWidgets.QCheckBox(option[0])
+            toggle_checkboxes[option].setCheckState(QtCore.Qt.Checked if res[option] else QtCore.Qt.Unchecked)
+            toggle_checkboxes[option].setDisabled(True)
+            toggle_checkboxes[option].setStyleSheet("QCheckBox::indicator { width: 20px; height: 20px; }")
+            toggle_checkboxes[option].setToolTip(option)
 
-        for i, (key, value) in enumerate(icons.items()):
+        for i, (key, value) in enumerate(toggle_checkboxes.items()):
             layout.addWidget(value, i >= 3, 3 + (i % 3))
         widget.setLayout(layout)
         return widget
@@ -103,10 +142,14 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         self.package_view.clear()
         self.package_view.setColumnCount(1)
         self.package_view.setRowCount(len(result))
+        self._packages = []
+        self._icon_queue = []
+        self._icon_labels = {}
         for i, res in enumerate(result):
             self._packages.append(Package(self.configuration, res.fields()["key"]))
             package_widget = self._get_package_widget(res)
             self.package_view.setCellWidget(i, 0, package_widget)
+        self._start_icon_queue()
 
     def _get_package_view(self):
         widget = QtWidgets.QTableWidget()
@@ -131,3 +174,25 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         package_window = PackageWindow(self._packages[row])
         package_window.show()
         self._package_windows.append(package_window)
+
+    def _start_icon_queue(self):
+        while self._icon_loading_queue < MAX_ICON_LOAD_AT_ONCE:
+            thread = IconLoaderThread(self)
+            thread.data_downloaded.connect(self._on_icon_read)
+            thread.start()
+            self._threads.append(thread)
+            # thread.join()
+            self._icon_loading_queue += 1
+
+    def _on_icon_read(self, url):
+        print("Icon loaded for: ", url)
+        for icon_label in self._icon_labels[url]:
+            icon = self.configuration.resource_manager.get_favicon(url)
+            if icon is None:
+                continue
+            pixmap = QtGui.QPixmap(icon.path)
+            assert os.path.exists(icon.path)
+            self._pixmaps.append(pixmap)
+            icon_label.setPixmap(pixmap)
+            icon_label.setScaledContents(True)
+        del self._icon_labels[url]

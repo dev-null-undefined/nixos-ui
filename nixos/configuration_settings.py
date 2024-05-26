@@ -13,9 +13,10 @@ class ConfigurationSettings:
     Configuration settings
     """
 
-    def __init__(self, path, packages_path):
+    def __init__(self, path, packages_path, resource_manager):
         self.path = path
         self.packages_path = packages_path
+        self.resource_manager = resource_manager
         self.__get_real_packages_path()
 
     @cached_property
@@ -32,10 +33,7 @@ class ConfigurationSettings:
         TODO
         :return:
         """
-        tmp_dir = tempfile.gettempdir()
-        tmp_dir = os.path.join(tmp_dir, "nixos-ui")
-        os.makedirs(tmp_dir, exist_ok=True)
-        tmp_dir = os.path.join(tmp_dir, self.packages_hash.hexdigest())
+        tmp_dir = os.path.join(self.resource_manager.path, self.packages_hash.hexdigest())
         os.makedirs(tmp_dir, exist_ok=True)
         return tmp_dir
 

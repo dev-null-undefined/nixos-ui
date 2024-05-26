@@ -18,6 +18,8 @@
           ujson
           pyqt5
           pyqt5-stubs
+          favicon
+          requests
         ];
       my-python = pkgs.python311.withPackages python-packages;
     in {

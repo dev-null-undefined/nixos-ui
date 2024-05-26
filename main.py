@@ -1,5 +1,6 @@
 import sys
 
+from graphics.resource_manager import ResourceManager
 from nixos.configuration import Configuration
 from nixos.indexer import Indexer
 
@@ -7,7 +8,8 @@ from PyQt5 import QtWidgets
 
 from ui.main_window import NixGuiMainWindow
 
-conf = Configuration('nixos', 'nixpkgs')
+resource_manager = ResourceManager()
+conf = Configuration('nixos', 'nixpkgs', resource_manager)
 
 indexer = Indexer(conf)
 indexer.start(conf.packages)
