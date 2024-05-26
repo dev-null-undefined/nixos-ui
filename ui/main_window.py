@@ -14,30 +14,28 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         layout = QtWidgets.QGridLayout()
 
         # Full-size text input at the top
-        self.text_input = QtWidgets.QLineEdit(self)
-        self.text_input.setPlaceholderText("Enter text here")
-        self.text_input.setText("minecraft")
-        layout.addWidget(self.text_input, 0, 0, 1, 999)
+        self.text_input = self._get_search_input()
+        self.text_input.returnPressed.connect(self.search)
 
         # Toggle boxes
         self.toggles = self._get_toggles()
 
         self.search_button = QtWidgets.QPushButton("Search")
         self.search_button.clicked.connect(self.search)
-        layout.addWidget(self.search_button, 0, 998)
 
+        self.package_view = self._get_package_view()
+
+        layout.addWidget(self.text_input, 0, 0, 1, 999)
+        layout.addWidget(self.search_button, 0, 998)
         for i, (key, value) in enumerate(self.toggles.items()):
             layout.addWidget(value, 1, i)
+        layout.addWidget(self.package_view, 2, 0, 1, 999)
 
         layout.setSpacing(0)
-
-        self.package_view = self.get_package_view()
-        layout.addWidget(self.package_view, 2, 0, 1, 999)
 
         central_widget.setLayout(layout)
 
         self.setCentralWidget(central_widget)
-
         self.search()
 
     def _get_toggles(self):
@@ -57,9 +55,9 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         print(f'Searching for: {search_text}')
         result = self.configuration.indexer.search(search_text)
         print(result)
-        self.display_search_results(result)
+        self._display_search_results(result)
 
-    def get_package_widget(self, res):
+    def _get_package_widget(self, res):
         widget = QtWidgets.QWidget()
         layout = QtWidgets.QGridLayout()
         icon_label = QtWidgets.QLabel()
@@ -96,15 +94,15 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         widget.setLayout(layout)
         return widget
 
-    def display_search_results(self, result):
+    def _display_search_results(self, result):
         self.package_view.clear()
         self.package_view.setColumnCount(1)
         self.package_view.setRowCount(len(result))
         for i, res in enumerate(result):
-            package_widget = self.get_package_widget(res)
+            package_widget = self._get_package_widget(res)
             self.package_view.setCellWidget(i, 0, package_widget)
 
-    def get_package_view(self):
+    def _get_package_view(self):
         widget = QtWidgets.QTableWidget()
         widget.setColumnCount(1)
         widget.setHorizontalHeaderLabels(["Packages"])
@@ -115,3 +113,9 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         widget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         widget.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         return widget
+
+    def _get_search_input(self):
+        text_input = QtWidgets.QLineEdit(self)
+        text_input.setPlaceholderText("Enter text here")
+        text_input.setText("minecraft")
+        return text_input
