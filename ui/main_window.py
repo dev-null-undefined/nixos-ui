@@ -31,9 +31,7 @@ class IconLoaderThread(QtCore.QThread):
             if icon is not None:
                 print("Icon loaded for: ", homepage, ", ", icon.path)
             self.data_downloaded.emit(homepage)
-            if len(self.main_window._icon_queue) == 0:
-                self.main_window._icon_loading_queue -= 1
-                return
+        self.main_window._icon_loading_queue -= 1
 
 
 class NixGuiMainWindow(QtWidgets.QMainWindow):
