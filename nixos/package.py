@@ -51,7 +51,7 @@ class Package:
         return self._name
 
     def __str__(self):
-        return f'${self._name}-${self["version"]}'
+        return f'{self._name}-{self["version"]}'
 
     def __getitem__(self, item):
         return self.attributes[item]
