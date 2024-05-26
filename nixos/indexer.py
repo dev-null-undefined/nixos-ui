@@ -10,6 +10,7 @@ from whoosh.qparser import QueryParser, MultifieldParser, FieldAliasPlugin
 
 schema = Schema(
     name=TEXT(stored=True),
+    key=ID(stored=True),
     version=TEXT(stored=True),
     pname=TEXT(stored=True),
     available=BOOLEAN(stored=True),
@@ -62,6 +63,7 @@ class Indexer:
                 print(f"Indexing {counter}/{len(packages)}")
             writer.add_document(
                 name=package.name,
+                key=package.key,
                 version=package.version,
                 pname=package.pname,
                 available=package.available,

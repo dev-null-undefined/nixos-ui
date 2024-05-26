@@ -4,9 +4,9 @@ Package
 
 
 class Package:
-    def __init__(self, configuration, name: str):
+    def __init__(self, configuration, key: str):
         self._configuration = configuration
-        self._name = name
+        self._key = key
         self._attributes = None
 
     @staticmethod
@@ -39,19 +39,19 @@ class Package:
     @property
     def attributes(self):
         if not self._attributes:
-            self._attributes = Package.process_attributes(self._configuration.eval.get_package_attributes(self._name))
+            self._attributes = Package.process_attributes(self._configuration.eval.get_package_attributes(self._key))
         return self._attributes
 
     @property
-    def name(self):
+    def key(self):
         """
         TODO
         :return:
         """
-        return self._name
+        return self._key
 
     def __str__(self):
-        return f'{self._name}-{self["version"]}'
+        return f'{self._key}-{self["version"]}'
 
     def __getitem__(self, item):
         return self.attributes[item]
