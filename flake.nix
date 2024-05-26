@@ -24,6 +24,10 @@
       my-python = pkgs.python311.withPackages python-packages;
     in {
       devShells.default = my-python.env;
-      packages = pkgs // {custom-python = my-python;};
+      packages =
+        pkgs
+        // {
+          custom-python = my-python;
+        };
     });
 }
