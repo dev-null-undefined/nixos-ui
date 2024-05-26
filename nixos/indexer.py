@@ -6,7 +6,7 @@ import os
 from whoosh.filedb.filestore import FileStorage
 from whoosh.index import create_in, EmptyIndexError
 from whoosh.fields import *
-from whoosh.qparser import QueryParser
+from whoosh.qparser import QueryParser, MultifieldParser, FieldAliasPlugin
 
 schema = Schema(
     name=TEXT(stored=True),
@@ -81,7 +81,14 @@ class Indexer:
         writer.commit()
 
     def search(self, query):
-        query_parser = QueryParser("name", schema=self.index.schema)
+        query_parser = MultifieldParser(["name", "description"], schema=self.index.schema)
+        query_parser.add_plugin(FieldAliasPlugin({"description": ["desc", "text", "info", "props", "properties", "use"],
+                                                  "name": ["title"]}))
         query = query_parser.parse(query)
+        for subquery in query.all_terms():
+            if subquery[0] == "name" and subquery[1] == "free":
+                query.subqueries.append(query_parser.parse("free:true"))
+
         results = self.searcher.search(query)
+
         return results

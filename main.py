@@ -1,13 +1,12 @@
 from nixos.configuration import Configuration
 from nixos.indexer import Indexer
 
-conf = Configuration('nixos')
-
-print(conf.packages)
+conf = Configuration('nixos', 'nixpkgs-master')
 
 indexer = Indexer(conf)
 indexer.start(conf.packages)
 
+result = indexer.search("free")
 # take user input
 search = input("Search: ")
 while search != "exit":
