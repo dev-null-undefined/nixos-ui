@@ -2,10 +2,15 @@ import os
 
 from PyQt5 import QtWidgets, QtCore, QtGui
 
+from nixos.package import Package
+from ui.package_window import PackageWindow
+
 
 class NixGuiMainWindow(QtWidgets.QMainWindow):
     def __init__(self, configuration, parent=None):
         super().__init__(parent)
+        self._packages = []
+        self._package_windows = []
         self.configuration = configuration
         self.setWindowTitle('NixPkgs UI')
 
@@ -99,6 +104,7 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         self.package_view.setColumnCount(1)
         self.package_view.setRowCount(len(result))
         for i, res in enumerate(result):
+            self._packages.append(Package(self.configuration, res.fields()["key"]))
             package_widget = self._get_package_widget(res)
             self.package_view.setCellWidget(i, 0, package_widget)
 
@@ -112,6 +118,7 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         widget.verticalHeader().setDefaultSectionSize(100)
         widget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         widget.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        widget.cellDoubleClicked.connect(self.package_double_clicked)
         return widget
 
     def _get_search_input(self):
@@ -119,3 +126,8 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         text_input.setPlaceholderText("Enter text here")
         text_input.setText("minecraft")
         return text_input
+
+    def package_double_clicked(self, row, column):
+        package_window = PackageWindow(self._packages[row])
+        package_window.show()
+        self._package_windows.append(package_window)
