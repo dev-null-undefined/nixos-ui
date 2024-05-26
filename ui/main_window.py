@@ -29,19 +29,12 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         for i, (key, value) in enumerate(self.toggles.items()):
             layout.addWidget(value, 1, i)
 
-        # layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
-        # Set layout and central widget
-        central_widget.setLayout(layout)
 
-        self.main_editor = QtWidgets.QTableWidget()
-        self.main_editor.setColumnCount(1)
-        self.main_editor.setHorizontalHeaderLabels(["Packages"])
-        self.main_editor.horizontalHeader().setStretchLastSection(True)
-        self.main_editor.verticalHeader().setVisible(False)
-        self.main_editor.setShowGrid(False)
-        self.main_editor.verticalHeader().setDefaultSectionSize(100)
-        layout.addWidget(self.main_editor, 2, 0, 1, 999)
+        self.package_view = self.get_package_view()
+        layout.addWidget(self.package_view, 2, 0, 1, 999)
+
+        central_widget.setLayout(layout)
 
         self.setCentralWidget(central_widget)
 
@@ -58,6 +51,9 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
 
     def search(self):
         search_text = self.text_input.text()
+        for key, value in self.toggles.items():
+            if value.checkState() != QtCore.Qt.PartiallyChecked:
+                search_text += f" {key}:" + ("t" if value.checkState() == QtCore.Qt.Checked else "f")
         print(f'Searching for: {search_text}')
         result = self.configuration.indexer.search(search_text)
         print(result)
@@ -100,9 +96,21 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         return widget
 
     def display_search_results(self, result):
-        self.main_editor.clear()
-        self.main_editor.setColumnCount(1)
-        self.main_editor.setRowCount(len(result))
+        self.package_view.clear()
+        self.package_view.setColumnCount(1)
+        self.package_view.setRowCount(len(result))
         for i, res in enumerate(result):
             package_widget = self.get_package_widget(res)
-            self.main_editor.setCellWidget(i, 0, package_widget)
+            self.package_view.setCellWidget(i, 0, package_widget)
+
+    def get_package_view(self):
+        widget = QtWidgets.QTableWidget()
+        widget.setColumnCount(1)
+        widget.setHorizontalHeaderLabels(["Packages"])
+        widget.horizontalHeader().setStretchLastSection(True)
+        widget.verticalHeader().setVisible(False)
+        widget.setShowGrid(False)
+        widget.verticalHeader().setDefaultSectionSize(100)
+        widget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        widget.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        return widget
