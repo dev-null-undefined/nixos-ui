@@ -4,25 +4,29 @@ TODO
 import os
 
 from whoosh.filedb.filestore import FileStorage
-from whoosh.index import create_in
+from whoosh.index import create_in, EmptyIndexError
 from whoosh.fields import *
+from whoosh.qparser import QueryParser
+
 schema = Schema(
     name=TEXT(stored=True),
     version=TEXT(stored=True),
     pname=TEXT(stored=True),
     available=BOOLEAN(stored=True),
-    broken=BOOLEAN(stored=True),
-    insecure=BOOLEAN(stored=True),
-    unfree=BOOLEAN(stored=True),
-    unsupported=BOOLEAN(stored=True),
+    working=BOOLEAN(stored=True),
+    secure=BOOLEAN(stored=True),
+    free=BOOLEAN(stored=True),
+    good=BOOLEAN(stored=True),
+    supported=BOOLEAN(stored=True),
     description=TEXT(stored=True),
     homepage=ID(stored=True),
     license_short_name=TEXT(stored=True),
     maintainers_name=NGRAM(stored=True),
     maintainers_github=TEXT(stored=True),
-    platforms=TEXT(stored=True),
+    platforms=KEYWORD(stored=True, commas=True),
     position=ID(stored=True)
 )
+
 
 class Indexer:
     def __init__(self, configuration):
@@ -31,7 +35,18 @@ class Indexer:
         if not os.path.exists(self.index_path):
             os.makedirs(self.index_path)
         self.storage = FileStorage(self.index_path)
-        self.index = self.storage.create_index(schema)
+        self.index = None
+        self.searcher = None
+
+    def start(self, packages):
+        try:
+            self.index = self.storage.open_index()
+        except EmptyIndexError:
+            self.index = None
+        if not self.index or self.index.is_empty() or self.index.doc_count() < len(packages):
+            self.index = self.storage.create_index(schema)
+            self.index_packages(packages)
+        self.searcher = self.index.searcher()
 
     @staticmethod
     def bool_to_str(value):
@@ -40,22 +55,33 @@ class Indexer:
 
     def index_packages(self, packages):
         writer = self.index.writer()
+        counter = 0
         for package in packages:
+            counter += 1
+            if counter % (len(packages) // 20) == 0:
+                print(f"Indexing {counter}/{len(packages)}")
             writer.add_document(
                 name=package.name,
                 version=package.version,
                 pname=package.pname,
-                available=Indexer.bool_to_str(package.available),
-                broken=Indexer.bool_to_str(package.broken),
-                insecure=Indexer.bool_to_str(package.insecure),
-                unfree=Indexer.bool_to_str(package.unfree),
-                unsupported=Indexer.bool_to_str(package.unsupported),
+                available=package.available,
+                good=package.good,
+                working=package.working,
+                secure=package.secure,
+                free=package.free,
+                supported=package.supported,
                 description=package.description,
                 homepage=package.homepage,
                 license_short_name=package.license_short_name,
                 maintainers_name=",".join(package.maintainers_name),
                 maintainers_github=",".join(package.maintainers_github),
                 platforms=",".join(package.platforms),
-                position=",".join(package.position)
+                position=package.position
             )
         writer.commit()
+
+    def search(self, query):
+        query_parser = QueryParser("name", schema=self.index.schema)
+        query = query_parser.parse(query)
+        results = self.searcher.search(query)
+        return results

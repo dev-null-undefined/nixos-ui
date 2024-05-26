@@ -19,7 +19,9 @@ class Package:
             attributes["license"] = attributes["license"][0] if len(attributes["license"]) > 0 else None
         attributes["license"] = attributes["license"] if "license" in attributes else None
         attributes["maintainers"] = attributes["maintainers"] if "maintainers" in attributes else []
-        attributes["position"] = attributes["position"] if "position" in attributes else []
+        attributes["position"] = attributes["position"] if "position" in attributes else ""
+        if type(attributes["position"]) != str:
+            attributes["position"] = str(attributes["position"])
         attributes["platforms"] = attributes["platforms"] if "platforms" in attributes else []
         attributes["homepage"] = attributes["homepage"] if "homepage" in attributes else ""
         attributes["available"] = attributes["available"] if "available" in attributes else False
@@ -74,20 +76,43 @@ class Package:
         return self.attributes["available"]
 
     @property
+    def unavailable(self):
+        return not self.available
+
+    @property
     def broken(self):
         return self.attributes["broken"]
+
+    @property
+    def working(self):
+        return not self.broken
+
+    @property
+    def good(self):
+        return self.working and self.secure and self.supported
 
     @property
     def insecure(self):
         return self.attributes["insecure"]
 
     @property
+    def secure(self):
+        return not self.insecure
+
+    @property
     def unfree(self):
         return self.attributes["unfree"]
 
     @property
+    def free(self):
+        return not self.unfree
+
+    @property
     def unsupported(self):
         return self.attributes["unsupported"]
+    @property
+    def supported(self):
+        return not self.unsupported
 
     @property
     def description(self):

@@ -25,5 +25,5 @@ class Configuration(ConfigurationSettings):
         :return:
         """
         if not self._packages:
-            self._packages = map(lambda x: Package(self, x), self.eval.get_package_names())
+            self._packages = [ Package(self, x) for x in self.eval.get_package_names()]
         return self._packages
