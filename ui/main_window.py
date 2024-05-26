@@ -12,6 +12,7 @@ MAX_ICON_LOAD_AT_ONCE = 10
 
 class IconLoaderThread(QtCore.QThread):
     data_downloaded = QtCore.pyqtSignal(object)
+    thread_stopping = QtCore.pyqtSignal(object)
 
     def __init__(self, main_window):
         QtCore.QThread.__init__(self)
@@ -31,7 +32,7 @@ class IconLoaderThread(QtCore.QThread):
             if icon is not None:
                 print("Icon loaded for: ", homepage, ", ", icon.path)
             self.data_downloaded.emit(homepage)
-        self.main_window._icon_loading_queue -= 1
+        self.thread_stopping.emit(self)
 
 
 class NixGuiMainWindow(QtWidgets.QMainWindow):
@@ -42,6 +43,7 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         self._icon_queue = []
         self._icon_labels = {}
         self._threads = []
+        self._closed_threads = []
         self._icon_loading_queue = 0
         self._package_windows = []
         self.configuration = configuration
@@ -177,9 +179,9 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         while self._icon_loading_queue < MAX_ICON_LOAD_AT_ONCE:
             thread = IconLoaderThread(self)
             thread.data_downloaded.connect(self._on_icon_read)
+            thread.thread_stopping.connect(self._thread_closing)
             thread.start()
             self._threads.append(thread)
-            # thread.join()
             self._icon_loading_queue += 1
 
     def _on_icon_read(self, url):
@@ -189,8 +191,13 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
             if icon is None:
                 continue
             pixmap = QtGui.QPixmap(icon.path)
-            assert os.path.exists(icon.path)
             self._pixmaps.append(pixmap)
             icon_label.setPixmap(pixmap)
             icon_label.setScaledContents(True)
         del self._icon_labels[url]
+
+    def _thread_closing(self, thread):
+        self._icon_loading_queue -= 1
+        for closed_thread in self._closed_threads:
+            self._threads.remove(closed_thread)
+        self._closed_threads = [thread]
