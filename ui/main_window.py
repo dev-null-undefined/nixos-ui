@@ -66,6 +66,7 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         icon_label.setFixedWidth(75)
         icon_label.setFixedHeight(75)
         name_label = QtWidgets.QLabel(res['name'])
+        name_label.setFont(QtGui.QFont("Arial", 12, QtGui.QFont.Bold))
         desc_label = QtWidgets.QLabel(res['description'])
         status_icons = self.get_status_boxes(res)
         layout.addWidget(icon_label, 0, 0, 2, 1)
