@@ -31,7 +31,7 @@ schema = Schema(
 
 class Indexer:
     """
-    TODO
+    Indexer for searching for packages
     """
 
     def __init__(self, configuration):
@@ -45,7 +45,8 @@ class Indexer:
 
     def start(self, packages):
         """
-        TODO
+        Start the indexer try to load the index from the storage, if it is empty or not present, create a new index
+        Or if the index has fewer elements than we have packages, reindex the packages
         :param packages:
         :return:
         """
@@ -88,7 +89,7 @@ class Indexer:
 
     def search(self, query, limit=100):
         """
-        TODO
+        Search the index for packages matching the query
         :param query:
         :param limit:
         :return:

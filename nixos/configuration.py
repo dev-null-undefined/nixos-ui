@@ -7,7 +7,6 @@ from nixos.cached_evaluation import CachedEvaluation
 from nixos.package import Package
 
 
-# TODO: whoosh indexing
 class Configuration(ConfigurationSettings):
     """
     Conf
@@ -32,7 +31,7 @@ class Configuration(ConfigurationSettings):
 
     def set_indexer(self, indexer):
         """
-        TODO
+        Set indexer used for searching and querying packages
         :param indexer:
         :return:
         """

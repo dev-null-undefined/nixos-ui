@@ -1,16 +1,16 @@
 """
-TODO
+Package abstraction with lazy evaluation
 """
 
 
 class Package:
     """
-    TODO
+    Lazy evaluated package abstraction
     """
 
     def __init__(self, configuration, key: str):
         """
-        TODO
+        Initialize package but do not obtain attributes
         :param configuration:
         :param key:
         """
@@ -21,7 +21,7 @@ class Package:
     @staticmethod
     def process_attributes(attributes):
         """
-        TODO
+        Preprocess attributes and normalize them for indexing
         :param attributes:
         :return:
         """
@@ -53,7 +53,7 @@ class Package:
     @property
     def attributes(self):
         """
-        TODO
+        Get normalized attributes or return them if they are already present just return
         :return:
         """
         if not self._attributes:
@@ -63,12 +63,16 @@ class Package:
     @property
     def key(self):
         """
-        TODO
+        Get key of the package used for building
         :return:
         """
         return self._key
 
     def __str__(self):
+        """
+        Return string representation of the package
+        :return:
+        """
         return f'{self._key}-{self["version"]}'
 
     def __getitem__(self, item):
@@ -79,7 +83,7 @@ class Package:
 
     def build(self):
         """
-        TODO
+        Build the package and return path to the out link
         :return:
         """
         return self._configuration.eval.build(self)
@@ -87,7 +91,7 @@ class Package:
     @property
     def name(self):
         """
-        TODO
+        Get package name
         :return:
         """
         return self.attributes["name"]
@@ -95,7 +99,7 @@ class Package:
     @property
     def version(self):
         """
-        TODO
+        Get package version
         :return:
         """
         return self.attributes["version"]
@@ -103,7 +107,7 @@ class Package:
     @property
     def pname(self):
         """
-        TODO
+        Get package pname
         :return:
         """
         return self.attributes["pname"]
@@ -111,7 +115,7 @@ class Package:
     @property
     def available(self):
         """
-        TODO
+        Is package available
         :return:
         """
         return self.attributes["available"]
@@ -119,7 +123,7 @@ class Package:
     @property
     def unavailable(self):
         """
-        TODO
+        Is package unavailable
         :return:
         """
         return not self.available
@@ -127,7 +131,7 @@ class Package:
     @property
     def broken(self):
         """
-        TODO
+        Is package broken
         :return:
         """
         return self.attributes["broken"]
@@ -135,7 +139,7 @@ class Package:
     @property
     def working(self):
         """
-        TODO
+        Is package working
         :return:
         """
         return not self.broken
@@ -143,7 +147,7 @@ class Package:
     @property
     def good(self):
         """
-        TODO
+        Is package good which means that it working secure and supported
         :return:
         """
         return self.working and self.secure and self.supported
@@ -151,7 +155,7 @@ class Package:
     @property
     def insecure(self):
         """
-        TODO
+        Is package insecure
         :return:
         """
         return self.attributes["insecure"]
@@ -159,7 +163,7 @@ class Package:
     @property
     def secure(self):
         """
-        TODO
+        Is package secure
         :return:
         """
         return not self.insecure
@@ -167,7 +171,7 @@ class Package:
     @property
     def unfree(self):
         """
-        TODO
+        Is package unfree
         :return:
         """
         return self.attributes["unfree"]
@@ -175,7 +179,7 @@ class Package:
     @property
     def free(self):
         """
-        TODO
+        Is package free
         :return:
         """
         return not self.unfree
@@ -183,7 +187,7 @@ class Package:
     @property
     def unsupported(self):
         """
-        TODO
+        Is package unsupported
         :return:
         """
         return self.attributes["unsupported"]
@@ -191,7 +195,7 @@ class Package:
     @property
     def supported(self):
         """
-        TODO
+        Is package supported
         :return:
         """
         return not self.unsupported
@@ -199,7 +203,7 @@ class Package:
     @property
     def description(self):
         """
-        TODO
+        Description of the package
         :return:
         """
         return self.attributes["description"]
@@ -207,7 +211,7 @@ class Package:
     @property
     def homepage(self):
         """
-        TODO
+        Home page of the package project
         :return:
         """
         return self.attributes["homepage"]
@@ -215,7 +219,7 @@ class Package:
     @property
     def license_short_name(self):
         """
-        TODO
+        Short name of the license
         :return:
         """
         if not self.attributes["license"]:
@@ -227,7 +231,7 @@ class Package:
     @property
     def maintainers_name(self):
         """
-        TODO
+        List of maintainers real names
         :return:
         """
         return map(lambda maintainer: maintainer["name"], self.attributes["maintainers"])
@@ -235,7 +239,7 @@ class Package:
     @property
     def maintainers_github(self):
         """
-        TODO
+        List of maintainers GitHub usernames
         :return:
         """
         return map(lambda maintainer: maintainer["github"],
@@ -244,7 +248,7 @@ class Package:
     @property
     def platforms(self):
         """
-        TODO
+        Platforms on which the package is available
         :return:
         """
         return self.attributes["platforms"]
@@ -252,7 +256,7 @@ class Package:
     @property
     def position(self):
         """
-        TODO
+        File in which the package is defined
         :return:
         """
         return self.attributes["position"]

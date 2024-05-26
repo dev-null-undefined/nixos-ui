@@ -1,5 +1,6 @@
 """
-TODO
+Resource manager and cacher
+used for caching loading and saving resources
 """
 import os
 import pickle
@@ -13,12 +14,13 @@ from favicon import favicon
 
 class Favicon:
     """
-    TODO
+    Favicon abstraction over caching urls and saving them to disk
     """
 
     def __init__(self, url, path, file_format):
         """
-        TODO
+        Initialize favicon
+        and created hashed path based on the URL
         :param url:
         :param path:
         :param file_format:
@@ -31,7 +33,7 @@ class Favicon:
     @property
     def path(self):
         """
-        TODO
+        Return path to the favicon in png format
         :return:
         """
         return os.path.join(self._resource_path, self.hashed_url + ".png")
@@ -39,7 +41,7 @@ class Favicon:
     @property
     def format_path(self):
         """
-        TODO
+        Return real path to favicon with the file format from the server
         :return:
         """
         return self.path + "." + self.file_format
@@ -47,23 +49,26 @@ class Favicon:
 
 class Resources:
     """
-    TODO
+    Resource database
     """
 
     def __init__(self):
+        """
+        Initialize resources
+        """
         self.favicons = {}
         self._other = {}
 
     def __str__(self):
         """
-        TODO
+        Return count of resources including broken onces
         :return:
         """
-        return f"Resources: {len(self.favicons.keys())}"
+        return f"Resources: {len(self.favicons.keys() + self._other.keys())}"
 
     def count_broken(self):
         """
-        TODO
+        Count broken resources in the database
         :return:
         """
         return sum(1 for x in self.favicons.values() if x is None)
@@ -71,12 +76,12 @@ class Resources:
 
 class ResourceManager:
     """
-    TODO
+    Resource manager and cacher
     """
 
     def __init__(self):
         """
-        TODO
+        Initialize resource manager and load existing data from cache
         """
         self._resources = Resources()
         self._path = None
@@ -87,7 +92,7 @@ class ResourceManager:
     @property
     def path(self):
         """
-        TODO
+        Get path to the cache directory
         :return:
         """
         return self._path
@@ -101,9 +106,9 @@ class ResourceManager:
 
     def get_favicon(self, url):
         """
-        TODO
+        Get favicon from the cache or download it and cache it
         :param url:
-        :return:
+        :return: None if URL does not have favicon
         """
         if url in self._resources.favicons:
             return self._resources.favicons[url]

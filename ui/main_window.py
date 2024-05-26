@@ -1,5 +1,5 @@
 """
-TODO
+Main window to search for packages and display them
 """
 from PyQt5 import QtWidgets, QtCore, QtGui
 
@@ -11,14 +11,14 @@ MAX_ICON_LOAD_AT_ONCE = 10
 
 class IconLoaderThread(QtCore.QThread):
     """
-    TODO
+    Icon loading thread for downloading icons on background
     """
     data_downloaded = QtCore.pyqtSignal(object)
     thread_stopping = QtCore.pyqtSignal(object)
 
     def __init__(self, main_window):
         """
-        TODO
+        Create new icon loader thread
         :param main_window:
         """
         QtCore.QThread.__init__(self)
@@ -26,14 +26,14 @@ class IconLoaderThread(QtCore.QThread):
 
     def run(self):
         """
-        TODO
+        Start the loading process
         :return:
         """
         self.load_icon()
 
     def load_icon(self):
         """
-        TODO
+        Load icon from the queue when no more present stop this thread and emit signal
         :return:
         """
         while len(self.main_window.icon_queue) != 0:
@@ -51,12 +51,12 @@ class IconLoaderThread(QtCore.QThread):
 
 class NixGuiMainWindow(QtWidgets.QMainWindow):
     """
-    TODO
+    Main window for the NixPkgs UI
     """
 
     def __init__(self, configuration, parent=None):
         """
-        TODO
+        Initialize main window
         :param configuration:
         :param parent:
         """
@@ -112,7 +112,7 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
 
     def search(self):
         """
-        TODO
+        Search for packages using the indexer
         :return:
         """
         search_text = self.text_input.text()
@@ -133,7 +133,7 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         name_label = QtWidgets.QLabel(res['name'])
         name_label.setFont(QtGui.QFont("Arial", 12, QtGui.QFont.Bold))
         desc_label = QtWidgets.QLabel(res['description'])
-        status_icons = self.get_status_boxes(res)
+        status_icons = self._get_status_boxes(res)
         layout.addWidget(icon_label, 0, 0, 2, 1)
         layout.addWidget(name_label, 0, 1)
         layout.addWidget(desc_label, 1, 1)
@@ -146,9 +146,9 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
             self._icon_labels[res['homepage']].append(icon_label)
         return widget
 
-    def get_status_boxes(self, res):
+    def _get_status_boxes(self, res):
         """
-        TODO
+        Get status boxes for the package widget
         :param res:
         :return:
         """
@@ -193,7 +193,7 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         widget.verticalHeader().setDefaultSectionSize(100)
         widget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         widget.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
-        widget.cellDoubleClicked.connect(self.package_double_clicked)
+        widget.cellDoubleClicked.connect(self._package_double_clicked)
         return widget
 
     def _get_search_input(self):
@@ -202,13 +202,7 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         text_input.setText("minecraft")
         return text_input
 
-    def package_double_clicked(self, row, _):
-        """
-        TODO
-        :param row:
-        :param _:
-        :return:
-        """
+    def _package_double_clicked(self, row, _):
         package_window = PackageWindow(self._packages[row])
         package_window.show()
         self._package_windows.append(package_window)
