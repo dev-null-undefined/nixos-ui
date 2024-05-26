@@ -8,7 +8,7 @@ import ujson
 
 from nixos.configuration_settings import ConfigurationSettings
 
-command_template = [
+command_template_query = [
     "nix-env",
     "--query",
     "--available",
@@ -16,6 +16,21 @@ command_template = [
     "--status",
     "--json",
     "--meta",
+    "--arg",
+    "config",
+    "{ allowAliases = false;"
+    " allowUnfree = true;"
+    " allowBroken = true;"
+    " allowInsecurePredicate = x: true;"
+    " }",
+    "--file"
+]
+
+command_template_build = [
+    "nix",
+    "build",
+    "--no-link",
+    "--print-out-paths",
     "--arg",
     "config",
     "{ allowAliases = false;"
@@ -49,7 +64,7 @@ class Evaluation:
         return tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w", encoding="utf-8")
 
     def _get_packages_info_into_file(self, file):
-        command = [*command_template, self.configuration.real_packages_path]
+        command = [*command_template_query, self.configuration.real_packages_path]
         print("Executing command: ", " ".join(command))
         result = subprocess.run(command, stdout=file, stderr=subprocess.PIPE, text=True, check=False)
 
@@ -110,3 +125,24 @@ class Evaluation:
         options = {}
 
         return options
+
+    def build(self, package):
+        """
+        TODO
+        :return:
+        """
+        command = [*command_template_build, self.configuration.real_packages_path,  package.key]
+        print("Executing command: ", " ".join(command))
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=False)
+
+        if result.returncode != 0:
+            print("Error occurred:", result.stderr)
+            return None
+
+        if not result.stdout:
+            print("No output from build")
+            return None
+
+        path = result.stdout.strip()
+        print("Output path:", path)
+        return path

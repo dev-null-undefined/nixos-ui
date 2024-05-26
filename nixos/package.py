@@ -77,6 +77,13 @@ class Package:
     def __contains__(self, item):
         return item in self.attributes
 
+    def build(self):
+        """
+        TODO
+        :return:
+        """
+        return self._configuration.eval.build(self)
+
     @property
     def name(self):
         """
