@@ -18,7 +18,11 @@ command_template = [
     "--meta",
     "--arg",
     "config",
-    "{ allowAliases = false; }",
+    "{ allowAliases = false;"
+    " allowUnfree = true;"
+    " allowBroken = true;"
+    " allowInsecurePredicate = x: true;"
+    " }",
     "--file"
 ]
 
