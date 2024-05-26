@@ -1,7 +1,7 @@
 """
 TODO
 """
-import json
+import ujson
 import os
 
 from nixos.evaluation import Evaluation
@@ -74,10 +74,10 @@ class CachePackagesInfoFile:
     def _load_file(self, file_path):
         with open(file_path, 'r', encoding="utf-8") as package_info_file:
             try:
-                self.package_info_data = json.load(package_info_file)
+                self.package_info_data = ujson.load(package_info_file)
                 self.packages_info_file_path = file_path
                 self.hashed_id = self.configuration.packages_hash
-            except json.JSONDecodeError:
+            except ValueError:
                 self.package_info_data = None
                 self.packages_info_file_path = None
                 return False
