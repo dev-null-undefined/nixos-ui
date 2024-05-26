@@ -82,7 +82,7 @@ class Indexer:
             )
         writer.commit()
 
-    def search(self, query, limit=1_000):
+    def search(self, query, limit=100):
         query_parser = MultifieldParser(["name", "description"], schema=self.index.schema)
         query_parser.add_plugin(FieldAliasPlugin({"description": ["desc", "text", "info", "props", "properties", "use"],
                                                   "name": ["title"]}))
