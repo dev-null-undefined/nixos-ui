@@ -6,7 +6,7 @@ import subprocess
 import tempfile
 import ujson
 
-from nixos.configuration import ConfigurationSettings
+from nixos.configuration_settings import ConfigurationSettings
 
 command_template = [
     "nix-env",
@@ -46,8 +46,7 @@ class Evaluation:
         return packages
 
     def _get_empty_packages_info_file(self):
-        info_file = tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w", encoding="utf-8")
-        return info_file
+        return tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w", encoding="utf-8")
 
     def _get_packages_info_into_file(self, file):
         command = [*command_template, self.configuration.real_packages_path]
@@ -63,18 +62,16 @@ class Evaluation:
 
         print("Compressing JSON data")
         # Compress JSON data using ujson load and immediately dump it back to the file
-        loaded = None
-        with open(file.name, 'r', encoding="utf-8") as file:
+        with open(file.name, 'r', encoding="utf-8") as r_file:
             try:
-                loaded = ujson.load(file)
+                loaded = ujson.load(r_file)
             except ValueError:
                 print("Error occurred while loading JSON data")
                 return None
-        with open(file.name, 'w', encoding="utf-8") as file:
-            ujson.dump(loaded, file)
+        with open(file.name, 'w', encoding="utf-8") as w_file:
+            ujson.dump(loaded, w_file)
         print("Finished generating packages info file")
-        return file
-
+        return w_file
 
     def _get_packages_info_into_file_path(self, file_path):
         with open(file_path, 'w', encoding="utf-8") as file:

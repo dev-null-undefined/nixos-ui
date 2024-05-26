@@ -31,4 +31,9 @@ class Configuration(ConfigurationSettings):
         return self._packages
 
     def set_indexer(self, indexer):
+        """
+        TODO
+        :param indexer:
+        :return:
+        """
         self.indexer = indexer

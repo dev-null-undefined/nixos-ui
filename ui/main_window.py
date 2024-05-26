@@ -1,8 +1,7 @@
-import os
-from threading import Thread
-
+"""
+TODO
+"""
 from PyQt5 import QtWidgets, QtCore, QtGui
-from PyQt5.QtCore import Qt
 
 from nixos.package import Package
 from ui.package_window import PackageWindow
@@ -11,20 +10,35 @@ MAX_ICON_LOAD_AT_ONCE = 10
 
 
 class IconLoaderThread(QtCore.QThread):
+    """
+    TODO
+    """
     data_downloaded = QtCore.pyqtSignal(object)
     thread_stopping = QtCore.pyqtSignal(object)
 
     def __init__(self, main_window):
+        """
+        TODO
+        :param main_window:
+        """
         QtCore.QThread.__init__(self)
         self.main_window = main_window
 
     def run(self):
-        self._load_icon()
+        """
+        TODO
+        :return:
+        """
+        self.load_icon()
 
-    def _load_icon(self):
-        while len(self.main_window._icon_queue) != 0:
-            homepage = self.main_window._icon_queue[0]
-            self.main_window._icon_queue = self.main_window._icon_queue[1:]
+    def load_icon(self):
+        """
+        TODO
+        :return:
+        """
+        while len(self.main_window.icon_queue) != 0:
+            homepage = self.main_window.icon_queue[0]
+            self.main_window.icon_queue = self.main_window.icon_queue[1:]
             if not homepage or homepage == "null" or homepage == "None" or homepage == "":
                 continue
             print("Loading icon for: ", homepage)
@@ -36,11 +50,20 @@ class IconLoaderThread(QtCore.QThread):
 
 
 class NixGuiMainWindow(QtWidgets.QMainWindow):
+    """
+    TODO
+    """
+
     def __init__(self, configuration, parent=None):
+        """
+        TODO
+        :param configuration:
+        :param parent:
+        """
         super().__init__(parent)
         self._packages = []
         self._pixmaps = []
-        self._icon_queue = []
+        self.icon_queue = []
         self._icon_labels = {}
         self._threads = []
         self._closed_threads = []
@@ -67,7 +90,7 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
 
         layout.addWidget(self.text_input, 0, 0, 1, 999)
         layout.addWidget(self.search_button, 0, 998)
-        for i, (key, value) in enumerate(self.toggles.items()):
+        for i, (_, value) in enumerate(self.toggles.items()):
             layout.addWidget(value, 1, i)
         layout.addWidget(self.package_view, 2, 0, 1, 999)
 
@@ -88,6 +111,10 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         return toggles
 
     def search(self):
+        """
+        TODO
+        :return:
+        """
         search_text = self.text_input.text()
         for key, value in self.toggles.items():
             if value.checkState() != QtCore.Qt.PartiallyChecked:
@@ -114,12 +141,17 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         widget.setLayout(layout)
         if res['homepage'] not in self._icon_labels:
             self._icon_labels[res['homepage']] = [icon_label]
-            self._icon_queue.append(res['homepage'])
+            self.icon_queue.append(res['homepage'])
         else:
             self._icon_labels[res['homepage']].append(icon_label)
         return widget
 
     def get_status_boxes(self, res):
+        """
+        TODO
+        :param res:
+        :return:
+        """
         widget = QtWidgets.QWidget()
         widget.setFixedWidth(100)
         widget.setFixedHeight(75)
@@ -133,7 +165,7 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
             toggle_checkboxes[option].setStyleSheet("QCheckBox::indicator { width: 20px; height: 20px; }")
             toggle_checkboxes[option].setToolTip(option)
 
-        for i, (key, value) in enumerate(toggle_checkboxes.items()):
+        for i, (_, value) in enumerate(toggle_checkboxes.items()):
             layout.addWidget(value, i >= 3, 3 + (i % 3))
         widget.setLayout(layout)
         return widget
@@ -143,7 +175,7 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         self.package_view.setColumnCount(1)
         self.package_view.setRowCount(len(result))
         self._packages = []
-        self._icon_queue = []
+        self.icon_queue = []
         self._icon_labels = {}
         for i, res in enumerate(result):
             self._packages.append(Package(self.configuration, res.fields()["key"]))
@@ -170,7 +202,13 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
         text_input.setText("minecraft")
         return text_input
 
-    def package_double_clicked(self, row, column):
+    def package_double_clicked(self, row, _):
+        """
+        TODO
+        :param row:
+        :param _:
+        :return:
+        """
         package_window = PackageWindow(self._packages[row])
         package_window.show()
         self._package_windows.append(package_window)

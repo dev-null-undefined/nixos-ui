@@ -3,7 +3,6 @@ TODO
 """
 import os
 import subprocess
-import tempfile
 from functools import cached_property
 from hashlib import sha256
 
@@ -38,7 +37,8 @@ class ConfigurationSettings:
         return tmp_dir
 
     def __get_real_packages_path(self):
-        result = subprocess.run(['nix-instantiate', '--find-file', self.packages_path], capture_output=True, text=True, check=False)
+        result = subprocess.run(['nix-instantiate', '--find-file', self.packages_path], capture_output=True, text=True,
+                                check=False)
         if result.returncode != 0:
             raise ValueError("Error occurred:", result.stderr)
         self.real_packages_path = result.stdout.strip()

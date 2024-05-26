@@ -1,12 +1,20 @@
-from random import randint
-
+"""
+TODO
+"""
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QVBoxLayout, QLabel
 
 
 class PackageWindow(QtWidgets.QWidget):
+    """
+    TODO
+    """
 
     def __init__(self, package, parent=None):
+        """
+        TODO
+        :param package:
+        :param parent:
+        """
         super().__init__(parent)
         self.package = package
         self.setWindowTitle(f'NixPkgs UI - {package.key}-{package.version}')

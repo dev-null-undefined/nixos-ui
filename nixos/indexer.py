@@ -3,10 +3,10 @@ TODO
 """
 import os
 
+from whoosh.fields import Schema, TEXT, ID, BOOLEAN, NGRAM, KEYWORD
 from whoosh.filedb.filestore import FileStorage
-from whoosh.index import create_in, EmptyIndexError
-from whoosh.fields import *
-from whoosh.qparser import QueryParser, MultifieldParser, FieldAliasPlugin
+from whoosh.index import EmptyIndexError
+from whoosh.qparser import MultifieldParser, FieldAliasPlugin
 
 schema = Schema(
     name=TEXT(stored=True),
@@ -30,6 +30,10 @@ schema = Schema(
 
 
 class Indexer:
+    """
+    TODO
+    """
+
     def __init__(self, configuration):
         self.configuration = configuration
         self.index_path = os.path.join(configuration.packages_index_folder, "index")
@@ -40,21 +44,21 @@ class Indexer:
         self.searcher = None
 
     def start(self, packages):
+        """
+        TODO
+        :param packages:
+        :return:
+        """
         try:
             self.index = self.storage.open_index()
         except EmptyIndexError:
             self.index = None
         if not self.index or self.index.is_empty() or self.index.doc_count() < len(packages):
             self.index = self.storage.create_index(schema)
-            self.index_packages(packages)
+            self._index_packages(packages)
         self.searcher = self.index.searcher()
 
-    @staticmethod
-    def bool_to_str(value):
-        return value
-        return "true" if value else "false"
-
-    def index_packages(self, packages):
+    def _index_packages(self, packages):
         writer = self.index.writer()
         counter = 0
         for package in packages:
@@ -83,6 +87,12 @@ class Indexer:
         writer.commit()
 
     def search(self, query, limit=100):
+        """
+        TODO
+        :param query:
+        :param limit:
+        :return:
+        """
         query_parser = MultifieldParser(["name", "description"], schema=self.index.schema)
         query_parser.add_plugin(FieldAliasPlugin({"description": ["desc", "text", "info", "props", "properties", "use"],
                                                   "name": ["title"]}))

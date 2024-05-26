@@ -163,7 +163,4 @@ let
     (mapAttrs (_: normalizeOptions) opts);
 
   getOptions = flakePath: (builtins.getFlake flakePath).nixosConfigurations.xps.options;
-in flakePath: {
-  options = normalizeOptionSet (getOptions flakePath);
-  packages = (builtins.getFlake flakePath).packages;
-  }
+in flakePath: normalizeOptionSet (getOptions flakePath)

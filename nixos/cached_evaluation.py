@@ -1,8 +1,8 @@
 """
 TODO
 """
-import ujson
 import os
+import ujson
 
 from nixos.evaluation import Evaluation
 
@@ -11,6 +11,7 @@ class CachePackagesInfoFile:
     """
     TODO
     """
+
     def __init__(self, configuration, generator, validator):
         self.configuration = configuration
         self.validator = validator
@@ -63,7 +64,6 @@ class CachePackagesInfoFile:
         """
         return self.packages_info_file_path and self.package_info_data and self.validator(self)
 
-
     def _find_cached_file_path(self):
         for file in os.listdir(self.configuration.packages_index_folder):
             if file == "packages_info.json":
@@ -99,16 +99,14 @@ class CachedEvaluation(Evaluation):
 
     def __init__(self, configuration):
         super().__init__(configuration)
-        self.packages_info_file = CachePackagesInfoFile(configuration, super()._get_packages_info_into_file_path, self.__validate)
+        self.packages_info_file = CachePackagesInfoFile(configuration, super()._get_packages_info_into_file_path,
+                                                        self.__validate)
 
     def get_package_names(self):
         return super()._get_package_names_from_dict(self.packages_info_file.get_data())
 
-    def get_package_attributes(self, packageName: str):
-        return super()._get_package_attributes_from_dict(self.packages_info_file.get_data(), packageName)
-
-    def get_options(self):
-        return super().get_options()
+    def get_package_attributes(self, package_name: str):
+        return super()._get_package_attributes_from_dict(self.packages_info_file.get_data(), package_name)
 
     def __validate(self, cache_file: CachePackagesInfoFile):
         return cache_file.packages_info_file_path and cache_file.hashed_id == self.configuration.packages_hash
