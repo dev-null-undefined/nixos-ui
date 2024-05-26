@@ -17,6 +17,10 @@ class Package:
 
     @property
     def name(self):
+        """
+        TODO
+        :return:
+        """
         return self._name
 
     def __str__(self):
@@ -27,4 +31,3 @@ class Package:
 
     def __contains__(self, item):
         return item in self.attributes
-

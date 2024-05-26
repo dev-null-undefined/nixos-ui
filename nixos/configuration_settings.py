@@ -1,3 +1,6 @@
+"""
+TODO
+"""
 import os
 import subprocess
 import tempfile
@@ -17,10 +20,18 @@ class ConfigurationSettings:
 
     @cached_property
     def packages_hash(self):
+        """
+        TODO
+        :return:
+        """
         return sha256(self.real_packages_path.encode())
 
     @property
     def packages_index_folder(self):
+        """
+        TODO
+        :return:
+        """
         tmp_dir = tempfile.gettempdir()
         tmp_dir = os.path.join(tmp_dir, "nixos-ui")
         os.makedirs(tmp_dir, exist_ok=True)

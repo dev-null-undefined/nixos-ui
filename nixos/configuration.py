@@ -1,8 +1,6 @@
 """
 Configuration
 """
-from datetime import time
-from functools import cached_property
 
 from nixos.configuration_settings import ConfigurationSettings
 from nixos.cached_evaluation import CachedEvaluation
@@ -22,6 +20,10 @@ class Configuration(ConfigurationSettings):
 
     @property
     def packages(self):
+        """
+        TODO
+        :return:
+        """
         if not self._packages:
             self._packages = map(lambda x: Package(self, x), self.eval.get_package_names())
         return self._packages

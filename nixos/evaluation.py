@@ -1,3 +1,6 @@
+"""
+TODO
+"""
 import subprocess
 import tempfile
 import json
@@ -31,8 +34,8 @@ class Evaluation:
         """
         This function returns the names of the packages in the configuration.
         """
-        info_file = self._get_packages_info_file()
-        return self._get_package_names_from_file(info_file)
+        with self._get_packages_info_file() as info_file:
+            return self._get_package_names_from_file(info_file)
 
     def _get_empty_packages_info_file(self):
         info_file = tempfile.NamedTemporaryFile(suffix=".json")
@@ -46,13 +49,12 @@ class Evaluation:
         if result.returncode != 0:
             print("Error occurred:", result.stderr)
             return None
-        else:
-            print("Output saved to:", file.name)
+        print("Output saved to:", file.name)
         return file
 
 
     def _get_packages_info_into_file_path(self, file_path):
-        with open(file_path, 'w') as file:
+        with open(file_path, 'w', encoding="utf-8") as file:
             return self._get_packages_info_into_file(file)
 
     def _get_packages_info_file(self):
