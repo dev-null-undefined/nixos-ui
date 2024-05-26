@@ -7,7 +7,7 @@ class NixGuiMainWindow(QtWidgets.QMainWindow):
     def __init__(self, configuration, parent=None):
         super().__init__(parent)
         self.configuration = configuration
-        self.setWindowTitle('Simple UI')
+        self.setWindowTitle('NixPkgs UI')
 
         # Central widget and layout
         central_widget = QtWidgets.QWidget()
