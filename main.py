@@ -7,7 +7,7 @@ from PyQt5 import QtWidgets
 
 from ui.main_window import NixGuiMainWindow
 
-conf = Configuration('nixos', 'nixpkgs-master')
+conf = Configuration('nixos', 'nixpkgs')
 
 indexer = Indexer(conf)
 indexer.start(conf.packages)
